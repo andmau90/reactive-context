@@ -1,10 +1,10 @@
 {
-  "name": "reactive-context",
+  "name": "react-reactive-context",
   "version": "1.0.0",
   "description": "extending react context functionalities",
   "author": "andmau90",
   "license": "MIT",
-  "repository": "andmau90/reactive-context",
+  "repository": "git@github.com:andmau90/reactive-context.git",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",

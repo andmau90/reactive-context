@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import { createReactiveContext, useReactiveContext } from "reactive-context";
+import {
+    createReactiveContext,
+    useReactiveContext
+} from "react-reactive-context";
 
 const ColorContext = createReactiveContext({
     supportColor: "#AA0000"

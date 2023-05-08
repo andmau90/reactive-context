@@ -38,7 +38,7 @@ see React.Context Consumer
 ```tsx
 import React, { useEffect, useState } from "react";
 
-import { createReactiveContext, useReactiveContext } from "reactive-context";
+import { createReactiveContext, useReactiveContext } from "react-reactive-context";
 
 //Context initialization, could be empty
 const ColorContext = createReactiveContext({

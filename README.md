@@ -1,13 +1,13 @@
-# reactive-context
+# react-reactive-context
 
 > extending react context functionalities
 
-[![NPM](https://img.shields.io/npm/v/reactive-context.svg)](https://www.npmjs.com/package/reactive-context) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://img.shields.io/npm/v/reactive-context.svg)](https://www.npmjs.com/package/react-reactive-context) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Install
 
 ```bash
-npm install --save reactive-context
+npm install --save react-reactive-context
 ```
 
 ## Doc

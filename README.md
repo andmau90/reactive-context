@@ -77,33 +77,33 @@ remove all subscribtion registered by subscribe method
 ### Initialization
 ```tsx
     //Context initialization, could be empty
-    const ColorContext = createReactiveContext({
+    const Context = createReactiveContext({
         supportColor: "#AA0000"
     }, (state) => processedState);
 
-    <ColorContext.Provider value={state} decorator={(state) => processedState}>
+    <Context.Provider value={state} decorator={(state) => processedState}>
         {children}
-    </ColorContext.Provider>
+    </Context.Provider>
 ```
 
 ### Hook
 ```tsx
     //update component by custom hook
-    const state = useReactiveContext(ColorContext, { /* decorators returned inside decorator function */ });
+    const state = useReactiveContext(Context, { /* decorators returned inside decorator function */ });
 ```
 
 ### Consumer
 ```tsx
-    <ColorContext.Consumer /* all props except children are passed like decorators to decorator */>
+    <Context.Consumer /* all props except children are passed like decorators to decorator */>
         {(state) => null}
-    </ColorContext.Consumer>
+    </Context.Consumer>
 ```
 
 ### Subscriber
 ```tsx
    useEffect(() => {
         //listen to any Context change
-        const subscription = ColorContext.subscribe((processedState) => {
+        const subscription = Context.subscribe((processedState) => {
             
         }, {/* decorators returned inside decorator function */});
 
@@ -116,13 +116,13 @@ remove all subscribtion registered by subscribe method
 
 ### Setter
 ```tsx
-    ColorContext.set(state);
+    Context.set(state);
 ```
 or you could update Context.Provider value
 
 ### Getter
 ```tsx
-    ColorContext.get(/* decorators returned inside decorator function */);
+    Context.get(/* decorators returned inside decorator function */);
 ```
 
 ## License  <a name="license"></a>

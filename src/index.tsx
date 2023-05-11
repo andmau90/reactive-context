@@ -5,14 +5,29 @@ import React, {
     useContext,
     Context
 } from "react";
-import { Consumer } from "react";
+
+type ReactiveDecorator = { [key: string]: any };
+
+type Decorator<T> =
+    | undefined
+    | ((state: T, decorators: ReactiveDecorator) => any);
+
+type ReactiveSubscription<T> = (state: T) => void;
 
 type ProviderProps<T> = {
     value?: T,
+    decorator?: Decorator<T>,
     children?: React.ReactNode | undefined
 };
 
-type ReactiveSubscriber<T> = (state: T) => void;
+type ConsumerProps<T> = {
+    children: (state: T) => JSX.Element
+} & ReactiveDecorator;
+
+type ReactiveSubscriber<T> = {
+    callback?: ReactiveSubscription<T>,
+    decorators?: ReactiveDecorator
+};
 
 type ReactiveContext<T> = {
     //original Context class, use this with useContext hook
@@ -20,50 +35,69 @@ type ReactiveContext<T> = {
     //Component to render in the root of app
     Provider: (props: ProviderProps<T>) => JSX.Element,
     //Component that render children when Context changed
-    Consumer: Consumer<T>,
+    Consumer: (props: ConsumerProps<T>) => JSX.Element,
     //name of context, used to identify it inside render tree
     displayName?: String,
     //function that update provider, is callable where you want in the code
     set: (state: T) => void,
     //function that return current context state, callable where you want
-    get: () => T,
+    get: (decorators: ReactiveDecorator) => T,
     //function that allow to subscribe something to any context changes, return a callback to remove subscription
-    subscribe: (callback: ReactiveSubscriber<T>) => Function,
+    subscribe: (
+        callback: ReactiveSubscription<T>,
+        decorators?: ReactiveDecorator
+    ) => () => void,
     //delete all subscribers registered
     removeAllSubscribers: () => void,
     [key: string]: any
 };
 
+let _decorator: Decorator<any>;
+
+function _decorateState<T>(state: T, decorators: ReactiveDecorator = {}) {
+    return typeof _decorator === "function"
+        ? _decorator(state, decorators) || state
+        : state;
+}
+
 /**
  * generate a custom context that override React.Context
  * @param {*} defaultValue, must be an object
  */
-function createReactiveContext<T>(defaultValue: T): ReactiveContext<T> {
+function createReactiveContext<T>(
+    defaultValue: T,
+    defaultDecorator?: Decorator<T>
+): ReactiveContext<T> {
     const Context = createContext(defaultValue);
-    let updater: (value: T) => void;
-    let currentData: T;
-    const subscribers: { [key: string]: ReactiveSubscriber<T> } = {};
+    const _subscribers: {
+        [key: string]: ReactiveSubscriber<T>
+    } = {};
+    let _updater: (value?: T) => void;
+    let _currentData: T;
+    _decorator = defaultDecorator;
 
     /**
      * delete subscriber
      * @param {*} ids
      */
-    function clearSubscribers(ids: string[] = []) {
+    function _clearSubscribers(ids: string[] = []) {
         for (let i = 0; i < ids.length; i++) {
-            delete subscribers[ids[i]];
+            delete _subscribers[ids[i]];
         }
     }
 
     /**
      * @return array of undefined id to remove
      */
-    function callSubscribers(state: T): string[] {
+    function _callSubscribers(state: T): string[] {
         const idsToDelete: string[] = [];
-        const ids = Object.keys(subscribers);
+        const ids = Object.keys(_subscribers);
         ids.forEach((id) => {
-            const subscriber = subscribers[id];
-            if (typeof subscriber === "function") {
-                subscriber(state);
+            const subscriber = _subscribers[id];
+            if (subscriber && typeof subscriber.callback === "function") {
+                subscriber.callback(
+                    _decorateState(state, subscriber.decorators)
+                );
             } else {
                 idsToDelete.push(id);
             }
@@ -78,54 +112,81 @@ function createReactiveContext<T>(defaultValue: T): ReactiveContext<T> {
      */
     function Provider({
         value: propValue,
+        decorator: decoratorProp,
         ...rest
     }: ProviderProps<T>): JSX.Element {
         const [state, setState] = useState(defaultValue);
 
         useEffect(() => {
-            currentData = state;
-            clearSubscribers(callSubscribers(state));
-            updater = (value: T) => {
+            //store current state to a global scoped variable
+            _currentData = state;
+            //the state is chaned, we need to call all subscribers
+            _clearSubscribers(_callSubscribers(state));
+            //reset updater with new state value
+            _updater = (value: T = state) => {
                 if (typeof value === "object" && !Array.isArray(value)) {
                     setState({ ...state, ...value });
                 } else {
-                    setState(value);
+                    setState(value || state);
                 }
             };
         }, [state]);
 
         useEffect(() => {
-            if (propValue !== undefined) {
-                setState(propValue);
-            }
+            //merge or override state if Provider value changes
+            _updater(propValue);
         }, [propValue]);
 
+        useEffect(() => {
+            _decorator = decoratorProp;
+            if (_decorator) {
+                //if decorator changes we need to update the state with new function
+                _updater();
+            }
+        }, [decoratorProp]);
+
         return <Context.Provider value={state} {...rest} />;
+    }
+
+    function Consumer(props: ConsumerProps<T>): JSX.Element {
+        const { children, ...decorators } = props;
+        const state = useContext(Context);
+        const _state = _decorateState(state, decorators);
+        return children(_state);
     }
 
     return {
         default: Context,
         ...Context,
         Provider,
+        Consumer,
         set: (value: T) => {
-            if (typeof updater === "function") {
-                updater(value);
+            if (typeof _updater === "function") {
+                _updater(value);
             }
         },
-        get: () => currentData,
-        subscribe: (callback) => {
+        get: (decorators: ReactiveDecorator) =>
+            _decorateState(_currentData, decorators),
+        subscribe: (
+            callback: ReactiveSubscription<T>,
+            decorators?: ReactiveDecorator
+        ) => {
             const id = `${Math.random().toString(36).substr(2, 9)}`;
-            subscribers[id] = callback;
+            _subscribers[id] = { callback, decorators };
             return () => {
-                delete subscribers[id];
+                delete _subscribers[id];
             };
         },
-        removeAllSubscribers: () => clearSubscribers(Object.keys(subscribers))
+        removeAllSubscribers: () => _clearSubscribers(Object.keys(_subscribers))
     };
 }
 
-function useReactiveContext<T>(context: ReactiveContext<T>) {
-    return useContext(context.default);
+function useReactiveContext<T>(
+    context: ReactiveContext<T>,
+    decorators?: ReactiveDecorator
+) {
+    const _state = useContext(context.default);
+    return _decorateState(_state, decorators);
 }
 
 export { createReactiveContext, useReactiveContext };

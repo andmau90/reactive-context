@@ -1,108 +1,130 @@
 # react-reactive-context
 
-> extending react context functionalities
+[![NPM](https://img.shields.io/npm/v/react-reactive-context.svg)](https://www.npmjs.com/package/react-reactive-context) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-[![NPM](https://img.shields.io/npm/v/reactive-context.svg)](https://www.npmjs.com/package/react-reactive-context) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+## Table of Contents
 
-## Install
+- [About](#about)
+- [Installing](#installing)
+- [Doc](#doc)
+- [Usage](#usage)
+- [License](#license)
+
+## About <a name="about"></a>
+
+Write about 1-2 paragraphs describing the purpose of your project.
+
+### Installing <a name="installing"></a>
 
 ```bash
 npm install --save react-reactive-context
 ```
 
-## Doc
+## Doc <a name="doc"></a>
 
-```createReactiveContext```
-return a new Context
+### ```createReactiveContext```
+return a new Context, the function accepts two parameters
 
-```useReactiveContext```
-trigger component update if something changes
+| name      | type | description                                                                       |
+| --------- | ---- | --------------------------------------------------------------------------------- |
+| state     | any  | default context value                                                             |
+| decorator | func | when the state change take its value and return a new decorated state             |
 
-```Context.subscribe```
-event emitted by Context if something changes
+### ```Context.Provider```
+Provider accepts the following props
+@see[Provider](https://legacy.reactjs.org/docs/context.html#contextprovider)
+| name      | type | description                                                                                |
+| --------- | ---- | ------------------------------------------------------------------------------------------ |
+| value     | any  | context value                                                                              |
+| decorator | func | when the state change take its value and return a new decorated state                      |
 
-```Context.set```
-update a Context by method
+### ```Context.Consumer```
+Consumer props are passed like decorators to decorator function
+@see [Consumer](https://legacy.reactjs.org/docs/context.html#contextconsumer)
 
-```Context.get```
-return current Context status everywhere
+### ```useReactiveContext```
+trigger component update if something changes, accepts two parameters
+| name       | type             | description                                                                       |
+| ---------- | ---------------- | --------------------------------------------------------------------------------- |
+| Context    | ReactiveContext  | Context variable                                                                  |
+| decorators | object           | passed to decorator function                                                      |
 
-```Context.Provider```
-see React.Context Provider
 
-```ColorContext.Consumer```
-see React.Context Consumer
+### ```subscribe```
+accepts two parameters
+| name       | type             | description                                                                       |
+| ---------- | ---------------- | --------------------------------------------------------------------------------- |
+| callback   | func             | return current decorated state                                                    |
+| decorators | object           | passed to decorator function                                                      |
 
-## Usage
+### ```set```
+update a Context, accepts new state value
 
+### ```get```
+return current Context status everywhere, accepts a decorator object
+
+### ```removeAllSubscribers```
+remove all subscribtion registered by subscribe method
+
+## Usage <a name="usage"></a>
+
+### Import
 ```tsx
-import React, { useEffect, useState } from "react";
+    import React, { useEffect, useState } from "react";
+    import { createReactiveContext, useReactiveContext } from "react-reactive-context";
+```
 
-import { createReactiveContext, useReactiveContext } from "react-reactive-context";
+### Initialization
+```tsx
+    //Context initialization, could be empty
+    const ColorContext = createReactiveContext({
+        supportColor: "#AA0000"
+    }, (state) => processedState);
 
-//Context initialization, could be empty
-const ColorContext = createReactiveContext({
-    supportColor: "#AA0000"
-});
+    <ColorContext.Provider value={state} decorator={(state) => processedState}>
+        {children}
+    </ColorContext.Provider>
+```
 
-const TestHook = () => {
+### Hook
+```tsx
     //update component by custom hook
-    const { supportColor } = useReactiveContext(ColorContext);
+    const state = useReactiveContext(ColorContext, { /* decorators returned inside decorator function */ });
+```
 
-    return <div style={{ color: supportColor }}>{"Test hook"}</div>;
-};
+### Consumer
+```tsx
+    <ColorContext.Consumer /* all props except children are passed like decorators to decorator */>
+        {(state) => null}
+    </ColorContext.Consumer>
+```
 
-const TestConsumer = () => {
-    //update component by Consumer
-    return (
-        <ColorContext.Consumer>
-            {({ supportColor }) => (
-                <div style={{ color: supportColor }}>{"Test consumer"}</div>
-            )}
-        </ColorContext.Consumer>
-    );
-};
-
-const App = () => {
-    const [state, setState] = useState({ supportColor: "#AA0000" });
-
-    useEffect(() => {
+### Subscriber
+```tsx
+   useEffect(() => {
         //listen to any Context change
-        const subscription = ColorContext.subscribe((contextState) => {
-            console.debug(contextState);
-        });
+        const subscription = ColorContext.subscribe((processedState) => {
+            
+        }, {/* decorators returned inside decorator function */});
 
         return () => {
             //unsubscribe
             subscription();
         };
     }, []);
-
-    //update context by set method
-    const _setBlue = () => {
-        ColorContext.set({
-            supportColor: "blue"
-        });
-    };
-
-    //update Context by Provider props
-    const _setGreen = () => {
-        setState({
-            supportColor: "green"
-        });
-    };
-
-    return (
-        <ColorContext.Provider value={state}>
-            <input type="button" onClick={_setBlue} value="Blue" />
-            <input type="button" onClick={_setGreen} value="Green" />
-            <TestHook />
-            <TestConsumer />
-        </ColorContext.Provider>
-    );
-};
 ```
 
-## License
+### Setter
+```tsx
+    ColorContext.set(state);
+```
+or you could update Context.Provider value
+
+### Getter
+```tsx
+    ColorContext.get(/* decorators returned inside decorator function */);
+```
+
+## License  <a name="license"></a>
 
 MIT © [andmau90](https://github.com/andmau90)

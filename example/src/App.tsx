@@ -5,31 +5,36 @@ import {
     useReactiveContext
 } from "react-reactive-context";
 
+type MyContext = {
+    color: string,
+    supportColor?: string
+};
+
 const ColorContext = createReactiveContext({
-    supportColor: "#AA0000"
-});
+    color: "#AA0000",
+    supportColor: "red"
+} as MyContext);
 
 const TestHook = () => {
-    const { supportColor } = useReactiveContext(ColorContext, {
-        name: "Hook"
+    const style = useReactiveContext(ColorContext, {
+        height: 50,
+        background: "green"
     });
-    return <div style={{ color: supportColor }}>{"Test hook"}</div>;
+    return <div style={style}>{"Test hook"}</div>;
 };
 
 const TestConsumer = () => {
     return (
-        <ColorContext.Consumer name="Consumer">
-            {({ supportColor }) => {
-                return (
-                    <div style={{ color: supportColor }}>{"Test consumer"}</div>
-                );
+        <ColorContext.Consumer name="Consumer" height={200} background={"blue"}>
+            {(style) => {
+                return <div style={style}>{"Test consumer"}</div>;
             }}
         </ColorContext.Consumer>
     );
 };
 
 const App = () => {
-    const [state, setState] = useState({ supportColor: "#AA0000" });
+    const [state, setState] = useState({ color: "#AA0000" });
 
     useEffect(() => {
         const subscription = ColorContext.subscribe(
@@ -47,44 +52,32 @@ const App = () => {
 
     const _setBlue = () => {
         ColorContext.set({
-            supportColor: "blue"
+            color: "blue"
         });
     };
 
     const _setRed = () => {
         setState({
-            supportColor: "red"
+            color: "red"
         });
     };
 
     const _setGreen = () => {
         setState({
-            supportColor: "green"
+            color: "green"
         });
     };
 
-    const _elaborator = useCallback((providerState: any, attributes: any) => {
-        console.debug(
-            "provider elaborator receive" + providerState.supportColor
-        );
-        let color;
-        if (providerState.supportColor === "blue") {
-            color = { supportColor: "#00AAAA" };
-        } else if (providerState.supportColor === "green") {
-            color = { supportColor: "green" };
-        } else {
-            color = { supportColor: "#AAaA00" };
-        }
-        console.debug(
-            "provider elaborator return " +
-                color.supportColor +
-                ` for ${attributes.name}`
-        );
-        return color;
-    }, []);
+    const _decorator = useCallback(
+        (providerState: any, attributes: any) => ({
+            ...providerState,
+            ...attributes
+        }),
+        []
+    );
 
     return (
-        <ColorContext.Provider value={state} elaborator={_elaborator}>
+        <ColorContext.Provider value={state} decorator={_decorator}>
             <input type="button" onClick={() => _setBlue()} value="Blue" />
             <input type="button" onClick={() => _setGreen()} value="Green" />
             <input type="button" onClick={() => _setRed()} value="Red" />

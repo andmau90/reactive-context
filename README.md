@@ -76,10 +76,14 @@ remove all subscribtion registered by subscribe method
 
 ### Initialization
 ```tsx
+    type MyContext = {
+        color: string,
+        supportColor?: string
+    };
     //Context initialization, could be empty
     const Context = createReactiveContext({
         supportColor: "#AA0000"
-    }, (state) => processedState);
+    } as MyContext, (state) => processedState);
 
     <Context.Provider value={state} decorator={(state) => processedState}>
         {children}

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing provider initialization init context by provider 1`] = `
+<div
+  style={
+    Object {
+      "color": undefined,
+    }
+  }
+>
+  Test red
+</div>
+`;
+
+exports[`Testing provider initialization overriding context by provider state 1`] = `
+<div
+  style={
+    Object {
+      "color": "red",
+    }
+  }
+>
+  Test red
+</div>
+`;

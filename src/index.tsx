@@ -133,17 +133,16 @@ function createReactiveContext<T>(
         }, [state]);
 
         useEffect(() => {
-            //merge or override state if Provider value changes
-            _updater(propValue);
-        }, [propValue]);
+            //store decorator function each time changes
+            //i don't trigger an update of each customer because usually _decorator function could be
+            //an arrow function and will change eache time the parent of provider changes something in the state
+            _decorator = decoratorProp;
+        }, [decoratorProp]);
 
         useEffect(() => {
-            _decorator = decoratorProp;
-            if (_decorator) {
-                //if decorator changes we need to update the state with new function
-                _updater();
-            }
-        }, [decoratorProp]);
+            //if prop value changes we need to update state
+            _updater(propValue);
+        }, [propValue]);
 
         return <Context.Provider value={state} {...rest} />;
     }

@@ -6,14 +6,11 @@ import {
 } from "react-reactive-context";
 
 type MyContext = {
-    color: string,
+    color?: string,
     supportColor?: string
 };
 
-const ColorContext = createReactiveContext({
-    color: "#AA0000",
-    supportColor: "red"
-} as MyContext);
+const ColorContext = createReactiveContext({} as MyContext);
 
 const TestHook = () => {
     const style = useReactiveContext(ColorContext, {

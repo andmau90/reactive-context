@@ -12,7 +12,9 @@
 
 ## About <a name="about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+The purpose of this module is increase the functionality of React.Context without add into the project a big library like redux.
+This module work in the same way of base React.Context but adds the possibility to set a new value without update Context.Provider prop, also allows to read Context state where you want into the code, there is also the possibility to add subscribers called that will be called when an update of Context occurs.
+Finally, the creator function or Context.Provider component accept a decorator that receives a current Context state and a set of attributes from each reader (hook, Consumer, subscriber) to customize the state for each of them.
 
 ### Installing <a name="installing"></a>
 

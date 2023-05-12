@@ -1,6 +1,6 @@
 {
   "name": "react-reactive-context",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "extending react context functionalities",
   "author": "andmau90",
   "license": "MIT",
@@ -61,5 +61,16 @@
   },
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "react",
+    "react-native",
+    "context",
+    "react-context",
+    "store",
+    "decorator",
+    "state",
+    "hook",
+    "reactive"
   ]
 }

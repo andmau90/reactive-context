@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing provider initialization init context by provider 1`] = `
+exports[`Testing provider initialization init context 1`] = `
 <div
   style={
     Object {
-      "color": undefined,
+      "color": "red",
     }
   }
 >

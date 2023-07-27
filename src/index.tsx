@@ -50,7 +50,7 @@ export type ReactiveContext<T, U, D> = {
 
 let _decorator: any;
 
-function _decorateState<T, U, D>(state: T, decorators: D): U {
+function _decorateState<T, U, D>(state: T, decorators?: D): U {
     return typeof _decorator === "function"
         ? _decorator(state, decorators) || state
         : state;
@@ -175,9 +175,9 @@ function createReactiveContext<T, U, D>(
 function useReactiveContext<T, U, D>(
     context: ReactiveContext<T, U, D>,
     decorators?: D
-) {
+): U {
     const _state = useContext(context.default);
-    return _decorateState(_state, decorators);
+    return _decorateState<T, U, D>(_state, decorators);
 }
 
 export { createReactiveContext, useReactiveContext };

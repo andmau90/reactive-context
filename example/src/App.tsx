@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { CSSProperties, useCallback, useEffect, useState } from "react";
 
 import {
     createReactiveContext,
@@ -9,12 +9,18 @@ type MyContext = {
     color?: string;
     supportColor?: string;
 };
-type MyContextDecorated = {
-    color?: string;
-    supportColor?: string;
+
+type MyDecorators = {
+    name?: string;
+    height?: number;
+    background?: string;
 };
 
-const ColorContext = createReactiveContext<MyContext, MyContextDecorated>({});
+const ColorContext = createReactiveContext<
+    MyContext,
+    CSSProperties,
+    MyDecorators
+>({});
 
 const TestHook = () => {
     const style = useReactiveContext(ColorContext, {

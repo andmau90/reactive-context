@@ -123,7 +123,7 @@ function createReactiveContext<T, U, D>(
                 if (typeof value === "object" && !Array.isArray(value)) {
                     setState({ ...state, ...value });
                 } else {
-                    setState((value || state) as T);
+                    setState((value || state) as unknown as T);
                 }
             };
         }, [state]);

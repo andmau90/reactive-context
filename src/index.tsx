@@ -21,7 +21,7 @@ type ProviderProps<T, U> = {
 };
 
 type ConsumerProps<U> = {
-    children: (state: U) => JSX.Element;
+    children: (state: U) => JSX.Element | JSX.Element[];
 } & ReactiveDecorator;
 
 type ReactiveSubscriber<U> = {
@@ -33,7 +33,7 @@ type ReactiveContext<T, U> = {
     //original Context class, use this with useContext hook
     default: Context<T>;
     //Component to render in the root of app
-    Provider: (props: ProviderProps<T, U>) => JSX.Element | JSX.Element[];
+    Provider: (props: ProviderProps<T, U>) => JSX.Element;
     //Component that render children when Context changed
     Consumer: (props: ConsumerProps<U>) => JSX.Element;
     //name of context, used to identify it inside render tree
@@ -151,7 +151,7 @@ function createReactiveContext<T, U>(
         const { children, ...decorators } = props;
         const state: T = useContext(Context);
         const _state: U = _decorateState(state, decorators);
-        return children(_state);
+        return <React.Fragment>{children(_state)}</React.Fragment>;
     }
 
     return {

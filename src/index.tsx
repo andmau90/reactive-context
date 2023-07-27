@@ -6,46 +6,42 @@ import React, {
     Context
 } from "react";
 
-type ReactiveDecorator = { [key: string]: any };
-
-type Decorator<T, U> =
-    | undefined
-    | ((state: T, decorators: ReactiveDecorator) => U);
+type Decorator<T, U, D> = undefined | ((state: T, decorators: D) => U);
 
 type ReactiveSubscription<U> = (state: U) => void;
 
-type ProviderProps<T, U> = {
+export type ProviderProps<T, U, D> = {
     value?: T;
-    decorator?: Decorator<T, U>;
+    decorator?: Decorator<T, U, D>;
     children?: JSX.Element | JSX.Element[];
 };
 
-type ConsumerProps<U> = {
+export type ConsumerProps<U, D> = {
     children: (state: U) => JSX.Element | JSX.Element[];
-} & ReactiveDecorator;
+} & D;
 
-type ReactiveSubscriber<U> = {
+type ReactiveSubscriber<U, D> = {
     callback?: ReactiveSubscription<U>;
-    decorators?: ReactiveDecorator;
+    decorators?: D;
 };
 
-type ReactiveContext<T, U> = {
+export type ReactiveContext<T, U, D> = {
     //original Context class, use this with useContext hook
     default: Context<T>;
     //Component to render in the root of app
-    Provider: (props: ProviderProps<T, U>) => JSX.Element;
+    Provider: (props: ProviderProps<T, U, D>) => JSX.Element;
     //Component that render children when Context changed
-    Consumer: (props: ConsumerProps<U>) => JSX.Element;
+    Consumer: (props: ConsumerProps<U, D>) => JSX.Element;
     //name of context, used to identify it inside render tree
     displayName?: string;
     //function that update provider, is callable where you want in the code
     set: (state: T) => void;
     //function that return current context state, callable where you want
-    get: (decorators: ReactiveDecorator) => U;
+    get: (decorators?: D) => U;
     //function that allow to subscribe something to any context changes, return a callback to remove subscription
     subscribe: (
         callback: ReactiveSubscription<U>,
-        decorators?: ReactiveDecorator
+        decorators?: D
     ) => () => void;
     //delete all subscribers registered
     removeAllSubscribers: () => void;
@@ -54,7 +50,7 @@ type ReactiveContext<T, U> = {
 
 let _decorator: any;
 
-function _decorateState<T, U>(state: T, decorators: ReactiveDecorator = {}): U {
+function _decorateState<T, U, D>(state: T, decorators: D): U {
     return typeof _decorator === "function"
         ? _decorator(state, decorators) || state
         : state;
@@ -64,13 +60,13 @@ function _decorateState<T, U>(state: T, decorators: ReactiveDecorator = {}): U {
  * generate a custom context that override React.Context
  * @param {*} defaultValue, must be an object
  */
-function createReactiveContext<T, U>(
+function createReactiveContext<T, U, D>(
     defaultValue: T,
-    defaultDecorator?: Decorator<T, U>
-): ReactiveContext<T, U> {
+    defaultDecorator?: Decorator<T, U, D>
+): ReactiveContext<T, U, D> {
     const Context = createContext(defaultValue);
     const _subscribers: {
-        [key: string]: ReactiveSubscriber<U>;
+        [key: string]: ReactiveSubscriber<U, D>;
     } = {};
     let _updater: (value?: T) => void;
     let _currentData: T;
@@ -114,7 +110,7 @@ function createReactiveContext<T, U>(
         value: propValue,
         decorator: decoratorProp,
         ...rest
-    }: ProviderProps<T, U>) {
+    }: ProviderProps<T, U, D>) {
         const [state, setState] = useState<T>(defaultValue);
 
         useEffect(() => {
@@ -147,7 +143,7 @@ function createReactiveContext<T, U>(
         return <Context.Provider value={state} {...rest} />;
     }
 
-    function Consumer(props: ConsumerProps<U>) {
+    function Consumer(props: ConsumerProps<U, D>) {
         const { children, ...decorators } = props;
         const state: T = useContext(Context);
         const _state: U = _decorateState(state, decorators);
@@ -164,12 +160,8 @@ function createReactiveContext<T, U>(
                 _updater(value);
             }
         },
-        get: (decorators: ReactiveDecorator) =>
-            _decorateState(_currentData, decorators),
-        subscribe: (
-            callback: ReactiveSubscription<U>,
-            decorators?: ReactiveDecorator
-        ) => {
+        get: (decorators?: D) => _decorateState(_currentData, decorators),
+        subscribe: (callback: ReactiveSubscription<U>, decorators?: D) => {
             const id = `${Math.random().toString(36).substr(2, 9)}`;
             _subscribers[id] = { callback, decorators };
             return () => {
@@ -180,9 +172,9 @@ function createReactiveContext<T, U>(
     };
 }
 
-function useReactiveContext<T, U>(
-    context: ReactiveContext<T, U>,
-    decorators?: ReactiveDecorator
+function useReactiveContext<T, U, D>(
+    context: ReactiveContext<T, U, D>,
+    decorators?: D
 ) {
     const _state = useContext(context.default);
     return _decorateState(_state, decorators);

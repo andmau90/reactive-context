@@ -87,8 +87,10 @@ remove all subscribtion registered by subscribe method
         ...
     };
 
+    type MyDecorators = {};
+
     //Context initialization, could be empty
-    const Context = createReactiveContext<MyContext,MyContextDecorated>({
+    const Context = createReactiveContext<MyContext, MyContextDecorated, MyDecorators>({
         supportColor: "#AA0000"
     }, (state) => processedState);
 

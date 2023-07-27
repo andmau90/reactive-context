@@ -35,7 +35,7 @@ export type ReactiveContext<T, U, D> = {
     //name of context, used to identify it inside render tree
     displayName?: string;
     //function that update provider, is callable where you want in the code
-    set: (state: T) => void;
+    set: (state: Partial<T>) => void;
     //function that return current context state, callable where you want
     get: (decorators?: D) => U;
     //function that allow to subscribe something to any context changes, return a callback to remove subscription
@@ -68,7 +68,7 @@ function createReactiveContext<T, U, D>(
     const _subscribers: {
         [key: string]: ReactiveSubscriber<U, D>;
     } = {};
-    let _updater: (value?: T) => void;
+    let _updater: (value?: Partial<T>) => void;
     let _currentData: T;
     _decorator = defaultDecorator;
 
@@ -119,11 +119,11 @@ function createReactiveContext<T, U, D>(
             //the state is chaned, we need to call all subscribers
             _clearSubscribers(_callSubscribers(state));
             //reset updater with new state value
-            _updater = (value: T = state) => {
+            _updater = (value: Partial<T> = state) => {
                 if (typeof value === "object" && !Array.isArray(value)) {
                     setState({ ...state, ...value });
                 } else {
-                    setState(value || state);
+                    setState((value || state) as T);
                 }
             };
         }, [state]);
@@ -155,7 +155,7 @@ function createReactiveContext<T, U, D>(
         ...Context,
         Provider,
         Consumer,
-        set: (value: T) => {
+        set: (value: Partial<T>) => {
             if (typeof _updater === "function") {
                 _updater(value);
             }

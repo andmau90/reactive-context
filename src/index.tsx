@@ -3,8 +3,7 @@ import React, {
     useState,
     useEffect,
     useContext,
-    Context,
-    MemoExoticComponent
+    Context
 } from "react";
 
 type Decorator<T, U, D> = undefined | ((state: T, decorators: D) => U);

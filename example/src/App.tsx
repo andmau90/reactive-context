@@ -23,7 +23,7 @@ const ColorContext = createReactiveContext<
 >({});
 
 const TestHook = () => {
-    const style = useReactiveContext(ColorContext, {
+    const { state, decoratedState: style } = useReactiveContext(ColorContext, {
         height: 50,
         background: "green"
     });
@@ -33,7 +33,7 @@ const TestHook = () => {
 const TestConsumer = () => {
     return (
         <ColorContext.Consumer name="Consumer" height={200} background={"blue"}>
-            {(style) => {
+            {({ state, decoratedState: style }) => {
                 return <div style={style}>{"Test consumer"}</div>;
             }}
         </ColorContext.Consumer>
@@ -45,9 +45,10 @@ const App = () => {
 
     useEffect(() => {
         const subscription = ColorContext.subscribe(
-            (contextState) => {
+            ({ state, decoratedState }) => {
                 console.debug("Subscription");
-                console.debug(contextState);
+                console.debug(state);
+                console.debug(decoratedState);
             },
             { name: "pippo" }
         );

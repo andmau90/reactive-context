@@ -102,13 +102,13 @@ remove all subscribtion registered by subscribe method
 ### Hook
 ```tsx
     //update component by custom hook
-    const state = useReactiveContext(Context, { /* decorators returned inside decorator function */ });
+    const {state, decoratedState} = useReactiveContext(Context, { /* decorators returned inside decorator function */ });
 ```
 
 ### Consumer
 ```tsx
     <Context.Consumer /* all props except children are passed like decorators to decorator */>
-        {(state) => null}
+        {({state, decoratedState}) => null}
     </Context.Consumer>
 ```
 
@@ -116,7 +116,7 @@ remove all subscribtion registered by subscribe method
 ```tsx
    useEffect(() => {
         //listen to any Context change
-        const subscription = Context.subscribe((processedState) => {
+        const subscription = Context.subscribe(({state, decoratedState}) => {
             
         }, {/* decorators returned inside decorator function */});
 
@@ -135,7 +135,7 @@ or you could update Context.Provider value
 
 ### Getter
 ```tsx
-    Context.get(/* decorators returned inside decorator function */);
+    const {state, decoratedState} = Context.get(/* decorators returned inside decorator function */);
 ```
 
 ## License  <a name="license"></a>

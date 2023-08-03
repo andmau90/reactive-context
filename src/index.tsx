@@ -181,6 +181,10 @@ function createReactiveContext<T, U, D>(
         subscribe: (callback: ReactiveSubscription<T, U>, decorators?: D) => {
             const id = `${Math.random().toString(36).substr(2, 9)}`;
             _subscribers[id] = { callback, decorators };
+            //call callback when is registered
+            if (typeof callback === "function") {
+                callback(_decorateState(_currentData, decorators));
+            }
             return () => {
                 delete _subscribers[id];
             };

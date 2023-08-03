@@ -5,6 +5,7 @@ import React, {
     useContext,
     Context
 } from "react";
+import { Utils } from "./utils";
 
 type Decorator<T, U, D> = undefined | ((state: T, decorators: D) => U);
 
@@ -127,10 +128,14 @@ function createReactiveContext<T, U, D>(
             _clearSubscribers(_callSubscribers(state));
             //reset updater with new state value
             _updater = (value: Partial<T> = state) => {
+                let newState: T;
                 if (typeof value === "object" && !Array.isArray(value)) {
-                    setState({ ...state, ...value });
+                    newState = { ...state, ...value };
                 } else {
-                    setState((value || state) as unknown as T);
+                    newState = (value || state) as unknown as T;
+                }
+                if (!Utils.areEqualShallow(newState as any, state as any)) {
+                    setState(newState);
                 }
             };
         }, [state]);

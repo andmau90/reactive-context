@@ -85,7 +85,7 @@ const App = () => {
     );
 
     return (
-        <ColorContext.Provider value={state} decorator={_decorator}>
+        <ColorContext.Provider value={{ ...state }} decorator={_decorator}>
             <input type="button" onClick={() => _setBlue()} value="Blue" />
             <input type="button" onClick={() => _setGreen()} value="Green" />
             <input type="button" onClick={() => _setRed()} value="Red" />

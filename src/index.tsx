@@ -6,7 +6,6 @@ import React, {
     Context,
     MemoExoticComponent
 } from "react";
-import { Utils } from "./utils";
 
 type Decorator<T, U, D> = undefined | ((state: T, decorators: D) => U);
 
@@ -33,9 +32,7 @@ export type ReactiveContext<T, U, D> = {
     //original Context class, use this with useContext hook
     default: Context<T>;
     //Component to render in the root of app
-    Provider: MemoExoticComponent<
-        (props: ProviderProps<T, U, D>) => JSX.Element
-    >;
+    Provider: (props: ProviderProps<T, U, D>) => JSX.Element;
     //Component that render children when Context changed
     Consumer: (props: ConsumerProps<T, U, D>) => JSX.Element;
     //name of context, used to identify it inside render tree
@@ -117,46 +114,42 @@ function createReactiveContext<T, U, D>(
      * @param {*} props
      * @returns
      */
-    const Provider = React.memo(
-        ({
-            value: propValue,
-            decorator: decoratorProp,
-            ...rest
-        }: ProviderProps<T, U, D>) => {
-            const [state, setState] = useState<T>(defaultValue);
+    const Provider = function ({
+        value: propValue,
+        decorator: decoratorProp,
+        ...rest
+    }: ProviderProps<T, U, D>) {
+        const [state, setState] = useState<T>(defaultValue);
 
-            useEffect(() => {
-                //store current state to a global scoped variable
-                _currentData = state;
-                //the state is chaned, we need to call all subscribers
-                _clearSubscribers(_callSubscribers(state));
-                //reset updater with new state value
-                _updater = (value: Partial<T> = state) => {
-                    if (typeof value === "object" && !Array.isArray(value)) {
-                        setState({ ...state, ...value });
-                    } else {
-                        setState((value || state) as unknown as T);
-                    }
-                };
-            }, [state]);
+        useEffect(() => {
+            //store current state to a global scoped variable
+            _currentData = state;
+            //the state is chaned, we need to call all subscribers
+            _clearSubscribers(_callSubscribers(state));
+            //reset updater with new state value
+            _updater = (value: Partial<T> = state) => {
+                if (typeof value === "object" && !Array.isArray(value)) {
+                    setState({ ...state, ...value });
+                } else {
+                    setState((value || state) as unknown as T);
+                }
+            };
+        }, [state]);
 
-            useEffect(() => {
-                //store decorator function each time changes
-                //i don't trigger an update of each customer because usually _decorator function could be
-                //an arrow function and will change eache time the parent of provider changes something in the state
-                _decorator = decoratorProp;
-            }, [decoratorProp]);
+        useEffect(() => {
+            //store decorator function each time changes
+            //i don't trigger an update of each customer because usually _decorator function could be
+            //an arrow function and will change eache time the parent of provider changes something in the state
+            _decorator = decoratorProp;
+        }, [decoratorProp]);
 
-            useEffect(() => {
-                //if prop value changes we need to update state
-                _updater(propValue);
-            }, [propValue]);
+        useEffect(() => {
+            //if prop value changes we need to update state
+            _updater(propValue);
+        }, [propValue]);
 
-            return <Context.Provider value={state} {...rest} />;
-        },
-        Utils.areEqualShallow
-    );
-
+        return <Context.Provider value={state} {...rest} />;
+    };
     function Consumer(props: ConsumerProps<T, U, D>) {
         const { children, ...decorators } = props;
         const state: T = useContext(Context);

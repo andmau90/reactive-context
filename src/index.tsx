@@ -38,7 +38,7 @@ export type ReactiveContext<T, U, D> = {
     //name of context, used to identify it inside render tree
     displayName?: string;
     //function that update provider, is callable where you want in the code
-    set: (state: Partial<T>) => void;
+    set: (state: Partial<T> | ((prevState: T) => Partial<T>)) => void;
     //function that return current context state, callable where you want
     get: (decorators?: D) => ReactiveState<T, U>;
     //function that allow to subscribe something to any context changes, return a callback to remove subscription
@@ -76,7 +76,7 @@ function createReactiveContext<T, U, D>(
     const _subscribers: {
         [key: string]: ReactiveSubscriber<T, U, D>;
     } = {};
-    let _updater: (value?: Partial<T>) => void;
+    let _updater: (value?: Partial<T> | ((prevState: T) => Partial<T>)) => void;
     let _currentData: T;
     _decorator = defaultDecorator;
 
@@ -127,9 +127,13 @@ function createReactiveContext<T, U, D>(
             //the state is chaned, we need to call all subscribers
             _clearSubscribers(_callSubscribers(state));
             //reset updater with new state value
-            _updater = (value: Partial<T> = state) => {
+            _updater = (
+                value: Partial<T> | ((prevState: T) => Partial<T>) = state
+            ) => {
                 let newState: T;
-                if (typeof value === "object" && !Array.isArray(value)) {
+                if (typeof value === "function") {
+                    newState = value(state) as unknown as T;
+                } else if (typeof value === "object" && !Array.isArray(value)) {
                     newState = { ...state, ...value };
                 } else {
                     newState = (value || state) as unknown as T;
@@ -169,7 +173,7 @@ function createReactiveContext<T, U, D>(
         ...Context,
         Provider,
         Consumer,
-        set: (value: Partial<T>) => {
+        set: (value) => {
             if (typeof _updater === "function") {
                 _updater(value);
             }

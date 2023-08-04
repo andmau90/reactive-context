@@ -138,7 +138,7 @@ function createReactiveContext<T, U, D>(
                 } else {
                     newState = (value || state) as unknown as T;
                 }
-                if (!Utils.areEqualShallow(newState as any, state as any)) {
+                if (!Utils.equals(newState as any, state as any)) {
                     setState(newState);
                 }
             };

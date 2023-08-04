@@ -3,23 +3,24 @@ export namespace Utils {
         return Object.prototype.hasOwnProperty.call(obj, property);
     }
 
-    export function areEqualShallow(
+    export function equals(
         a: { [key: string]: any } = {},
         b: { [key: string]: any } = {}
     ): boolean {
         const aDifferentFromB = Object.keys(a).find((key) => {
-            if (typeof a[key] === "function" || typeof a[key] === "object") {
-                return false;
-            }
             if (!hasProperty(b, key)) {
                 return true;
+            }
+            if (
+                typeof a[key] === "object" &&
+                a[key] !== undefined &&
+                a[key] !== null
+            ) {
+                return !equals(a[key], b[key]);
             }
             return a[key] !== b[key];
         });
         const bDifferentFromA = Object.keys(b).find((key) => {
-            if (typeof b[key] === "function" || typeof b[key] === "object") {
-                return false;
-            }
             return !hasProperty(a, key);
         });
         return !aDifferentFromB && !bDifferentFromA;

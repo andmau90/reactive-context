@@ -1,6 +1,6 @@
 {
   "name": "react-reactive-context",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "extending react context functionalities",
   "author": "andmau90",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "@types/jest": "^25.1.4",
+    "@types/lodash.isequal": "^4.5.6",
     "@types/node": "^12.12.38",
     "@types/react": "^16.9.27",
     "@types/react-dom": "^16.9.7",
@@ -72,5 +73,8 @@
     "state",
     "hook",
     "reactive"
-  ]
+  ],
+  "dependencies": {
+    "lodash.isequal": "^4.5.0"
+  }
 }

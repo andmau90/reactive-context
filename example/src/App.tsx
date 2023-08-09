@@ -23,7 +23,7 @@ const ColorContext = createReactiveContext<
 >({});
 
 const TestHook = () => {
-    const { state, decoratedState: style } = useReactiveContext(ColorContext, {
+    const { decoratedState: style } = useReactiveContext(ColorContext, {
         height: 50,
         background: "green"
     });
@@ -33,7 +33,7 @@ const TestHook = () => {
 const TestConsumer = () => {
     return (
         <ColorContext.Consumer name="Consumer" height={200} background={"blue"}>
-            {({ state, decoratedState: style }) => {
+            {({ decoratedState: style }) => {
                 return <div style={style}>{"Test consumer"}</div>;
             }}
         </ColorContext.Consumer>
@@ -89,6 +89,7 @@ const App = () => {
             <input type="button" onClick={() => _setBlue()} value="Blue" />
             <input type="button" onClick={() => _setGreen()} value="Green" />
             <input type="button" onClick={() => _setRed()} value="Red" />
+            <input type="button" onClick={() => _setRed()} value="Red 2" />
             <TestHook />
             <TestConsumer />
         </ColorContext.Provider>

@@ -124,7 +124,7 @@ function createReactiveContext<T, U, D>(
         useEffect(() => {
             //store current state to a global scoped variable
             _currentData = state;
-            //the state is chaned, we need to call all subscribers
+            //the state is chained, we need to call all subscribers
             _clearSubscribers(_callSubscribers(state));
             //reset updater with new state value
             _updater = (

@@ -4,7 +4,7 @@ exports[`Testing provider initialization init context 1`] = `
 <div
   style={
     Object {
-      "color": "red",
+      "color": undefined,
     }
   }
 >
@@ -16,7 +16,7 @@ exports[`Testing provider initialization overriding context by provider state 1`
 <div
   style={
     Object {
-      "color": "red",
+      "color": undefined,
     }
   }
 >

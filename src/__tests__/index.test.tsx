@@ -1,6 +1,6 @@
 import renderer, { ReactTestRenderer } from "react-test-renderer";
 import React from "react";
-import { createReactiveContext } from "./index";
+import { createReactiveContext } from "../index";
 import { act } from "@testing-library/react";
 
 type Ctx = {
